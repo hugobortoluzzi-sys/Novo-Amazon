@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Calculadora Marketplaces</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f0f2f5}
+.tabs{display:flex;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.tab{flex:1;padding:12px 4px;text-align:center;font-size:.78rem;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.tab-ml{background:#ffe600;color:#333}
+.tab-az{background:#232f3e;color:#ff9900}
+.tab-ep{background:#146eb4;color:#fff}
+.tab-ml.active-ml{background:#f5a623;color:#fff}
+.tab-az.active-az{background:#ff9900;color:#fff}
+.tab-ep.active-ep{background:#0a4f8a;color:#fff}
+.page{display:none;padding:16px}
+.page.active{display:block}
+.header-ml{background:linear-gradient(135deg,#ffe600,#f5a623);border-radius:16px;padding:20px;text-align:center;margin-bottom:20px}
+.header-ml h1{font-size:1.4rem;color:#333;font-weight:700}
+.header-ml p{font-size:.8rem;color:#555;margin-top:4px}
+.header-az{background:linear-gradient(135deg,#ff9900,#e47911);border-radius:16px;padding:20px;text-align:center;margin-bottom:20px}
+.header-az h1{font-size:1.4rem;color:#fff;font-weight:700}
+.header-az p{font-size:.8rem;color:#fff;margin-top:4px;opacity:.85}
+.header-ep{background:linear-gradient(135deg,#146eb4,#0a4f8a);border-radius:16px;padding:20px;text-align:center;margin-bottom:20px}
+.header-ep h1{font-size:1.4rem;color:#fff;font-weight:700}
+.header-ep p{font-size:.8rem;color:#fff;margin-top:4px;opacity:.85}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h2{font-size:.9rem;color:#888;text-transform:uppercase;margin-bottom:14px;font-weight:600}
+.field{margin-bottom:14px}
+label{display:block;font-size:.82rem;color:#555;margin-bottom:5px;font-weight:500}
+input[type=number],select{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:1rem;color:#333;background:#fafafa;-webkit-appearance:none}
+input[type=number]:focus,select:focus{outline:none;background:#fff}
+.pi{position:relative}
+.pi span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#888;font-size:.9rem}
+.pi input{padding-left:30px}
+.tg{display:flex;gap:8px}
+.tg button{flex:1;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fafafa;font-size:.85rem;cursor:pointer;color:#555;font-weight:500;transition:all .2s}
+.tg button.act-ml{background:#ffe600;border-color:#f5a623;color:#333;font-weight:700}
+.tg button.act-ml-blue{background:#1a73e8;border-color:#1557b0;color:#fff;font-weight:700}
+.tg button.act-az{background:#ff9900;border-color:#e47911;color:#fff;font-weight:700}
+.tg button.act-ep{background:#146eb4;border-color:#0a4f8a;color:#fff;font-weight:700}
+.btn-ml{width:100%;padding:16px;background:linear-gradient(135deg,#f5a623,#e8941a);color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-bottom:20px}
+.btn-az{width:100%;padding:16px;background:linear-gradient(135deg,#ff9900,#e47911);color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-bottom:20px}
+.btn-ep{width:100%;padding:16px;background:linear-gradient(135deg,#146eb4,#0a4f8a);color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-bottom:20px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.ri{background:#f8f8f8;border-radius:12px;padding:14px;text-align:center}
+.ri.hl-ml{background:linear-gradient(135deg,#ffe600,#ffd000);grid-column:1/-1}
+.ri.hl-az{background:linear-gradient(135deg,#ff9900,#e47911);grid-column:1/-1}
+.ri.hl-ep{background:linear-gradient(135deg,#146eb4,#0a4f8a);grid-column:1/-1}
+.ri.hl-az .val,.ri.hl-ep .val{color:#fff}
+.ri.hl-az .lbl,.ri.hl-ep .lbl{color:rgba(255,255,255,.85)}
+.ri .val{font-size:1.3rem;font-weight:700;color:#333}
+.ri.hl-ml .val,.ri.hl-az .val,.ri.hl-ep .val{font-size:1.6rem}
+.ri .lbl{font-size:.72rem;color:#777;margin-top:3px;font-weight:500;text-transform:uppercase}
+.ri.green .val{color:#2e7d32}
+.ri.red .val{color:#c62828}
+.ri.blue .val{color:#146eb4}
+.bk{background:#f8f8f8;border-radius:12px;padding:14px;margin-top:4px}
+.bk h3{font-size:.8rem;color:#888;text-transform:uppercase;margin-bottom:10px}
+.br{display:flex;justify-content:space-between;font-size:.88rem;padding:5px 0;border-bottom:1px solid #efefef;color:#444}
+.br:last-child{border-bottom:none}
+.neg{color:#c62828}
+.pos{color:#2e7d32}
+.alert{border-radius:8px;padding:12px;font-size:.85rem;margin-top:12px}
+.alert-ml{background:#fff3e0;border-left:4px solid #f5a623;color:#e65100}
+.alert-az{background:#fff8f0;border-left:4px solid #ff9900;color:#e65100}
+.alert-ep{background:#e3f2fd;border-left:4px solid #146eb4;color:#0a4f8a}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin-left:8px;vertical-align:middle}
+.badge-classic{background:#ffe600;color:#333}
+.badge-premium{background:#1a73e8;color:#fff}
+.tarifa-info{font-size:.78rem;color:#888;margin-top:4px;padding:6px 10px;background:#f5f5f5;border-radius:8px}
+.info-box{background:#fff8f0;border-left:4px solid #ff9900;border-radius:8px;padding:10px 12px;font-size:.8rem;color:#333;margin-top:6px;line-height:1.5}
+.info-box strong{color:#e47911}
+.info-box-ep{background:#e3f2fd;border-left:4px solid #146eb4;border-radius:8px;padding:10px 12px;font-size:.8rem;color:#333;margin-top:6px;line-height:1.5}
+.info-box-ep strong{color:#146eb4}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.frete-box{background:#e8f5e9;border-radius:12px;padding:14px;margin-top:10px}
+.frete-box h3{font-size:.8rem;color:#2e7d32;text-transform:uppercase;margin-bottom:8px}
+.frete-linha{display:flex;justify-content:space-between;font-size:.88rem;padding:4px 0;color:#333}
+.saldo-pos{color:#2e7d32;font-weight:700}
+.saldo-neg{color:#c62828;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab tab-ml active-ml" onclick="setAba('ml')">🛒 Mercado Livre</button>
+  <button class="tab tab-az" onclick="setAba('az')">📦 Amazon DBA</button>
+  <button class="tab tab-ep" onclick="setAba('ep')">🚚 Envio Proprio</button>
+</div>
+
+<!-- MERCADO LIVRE -->
+<div id="page-ml" class="page active">
+  <div class="header-ml">
+    <h1>Calculadora Mercado Livre</h1>
+    <p>Precificacao e margem de contribuicao</p>
+  </div>
+  <div class="card">
+    <h2>Tipo de Anuncio</h2>
+    <div class="field">
+      <div class="tg">
+        <button id="ml-bClassico" class="act-ml" onclick="mlSetAnuncio('classico')">Classico</button>
+        <button id="ml-bPremium" onclick="mlSetAnuncio('premium')">Premium</button>
+      </div>
+    </div>
+    <div class="tarifa-info" id="ml-tarifaInfo">Tarifa Classico: <strong>11,5%</strong></div>
+  </div>
+  <div class="card">
+    <h2>Dados do Produto</h2>
+    <div class="field"><label>Custo do produto (R$)</label><div class="pi"><span>R$</span><input id="ml-custo" type="number" step="0.01" min="0"/></div></div>
+    <div class="field"><label>Embalagem (R$)</label><div class="pi"><span>R$</span><input id="ml-embalagem" type="number" step="0.01" min="0" value="2"/></div></div>
+    <div class="field"><label>Peso (kg)</label><input id="ml-peso" type="number" step="0.001" min="0"/></div>
+    <div class="field"><label>Tarifa Classico (%)</label><div class="pi"><span>%</span><input id="ml-tarifaClassico" type="number" step="0.1" min="0" value="11.5" oninput="mlAtualizarTarifaInfo()"/></div></div>
+    <div class="field"><label>Tarifa Premium (%)</label><div class="pi"><span>%</span><input id="ml-tarifaPremium" type="number" step="0.1" min="0" value="15" oninput="mlAtualizarTarifaInfo()"/></div></div>
+    <div class="field"><label>Imposto (%)</label><div class="pi"><span>%</span><input id="ml-imposto" type="number" step="0.1" min="0" value="5"/></div></div>
+  </div>
+  <div class="card">
+    <h2>Modo de Calculo</h2>
+    <div class="field">
+      <div class="tg">
+        <button id="ml-bMargem" class="act-ml" onclick="mlSetModo(true)">Por Margem</button>
+        <button id="ml-bPV" onclick="mlSetModo(false)">Por PV</button>
+      </div>
+    </div>
+    <div id="ml-campoMargem" class="field">
+      <label>Margem desejada (%)</label>
+      <div class="pi"><span>%</span><input id="ml-margem" type="number" step="0.1" min="0" value="20"/></div>
+    </div>
+    <div id="ml-campoPV" class="field" style="display:none">
+      <label>Preco de venda desejado (R$)</label>
+      <div class="pi"><span>R$</span><input id="ml-pvEntrada" type="number" step="0.01" min="0"/></div>
+    </div>
+    <div class="field">
+      <label>Frete gratis?</label>
+      <div class="tg">
+        <button id="ml-bSF" class="act-ml" onclick="mlSetFrete(false)">Sem Frete Gratis</button>
+        <button id="ml-bCF" onclick="mlSetFrete(true)">Com Frete Gratis</button>
+      </div>
+    </div>
+  </div>
+  <button class="btn-ml" onclick="mlCalcular()">Calcular</button>
+  <div id="ml-resultado" style="display:none">
+    <div class="card">
+      <h2>Resultado <span class="badge badge-classic" id="ml-badgeAnuncio">Classico</span></h2>
+      <div class="rg">
+        <div class="ri hl-ml"><div class="val" id="ml-rPV">R$ 0,00</div><div class="lbl">Preco de Venda</div></div>
+        <div class="ri green"><div class="val" id="ml-rMCpct">0,00%</div><div class="lbl">Margem</div></div>
+        <div class="ri green"><div class="val" id="ml-rMCr">R$ 0,00</div><div class="lbl">Lucro (R$)</div></div>
+        <div class="ri"><div class="val" id="ml-rFrete">R$ 0,00</div><div class="lbl">Frete ML</div></div>
+      </div>
+      <div class="bk">
+        <h3>Composicao</h3>
+        <div class="br"><span>Custo produto</span><span class="neg" id="ml-bdCusto">-</span></div>
+        <div class="br"><span>Embalagem</span><span class="neg" id="ml-bdEmb">-</span></div>
+        <div class="br"><span>Frete ML</span><span class="neg" id="ml-bdFrete">-</span></div>
+        <div class="br"><span id="ml-labelTarifa">Tarifa ML</span><span class="neg" id="ml-bdTarifa">-</span></div>
+        <div class="br"><span>Imposto</span><span class="neg" id="ml-bdImposto">-</span></div>
+        <div class="br"><span>Lucro liquido</span><span class="pos" id="ml-bdLucro">-</span></div>
+      </div>
+      <div id="ml-alerta" class="alert alert-ml" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AMAZON DBA -->
+<div id="page-az" class="page">
+  <div class="header-az">
+    <h1>Calculadora Amazon DBA</h1>
+    <p>Delivery by Amazon — frete incluso na tarifa</p>
+  </div>
+  <div class="card">
+    <h2>Dados do Produto</h2>
+    <div class="field"><label>Custo do produto (R$)</label><div class="pi"><span>R$</span><input id="az-custo" type="number" step="0.01" min="0"/></div></div>
+    <div class="field"><label>Embalagem (R$)</label><div class="pi"><span>R$</span><input id="az-embalagem" type="number" step="0.01" min="0" value="2"/></div></div>
+    <div class="field"><label>Peso real do produto (kg)</label><input id="az-peso" type="number" step="0.001" min="0" oninput="azCalcPesoCubico()"/></div>
+    <div class="field"><label>Dimensoes para peso cubico (opcional)</label></div>
+    <div class="dim-grid">
+      <div><label style="font-size:.75rem;color:#888">Comp. (cm)</label><input id="az-comp" type="number" step="0.1" min="0" placeholder="cm" oninput="azCalcPesoCubico()"/></div>
+      <div><label style="font-size:.75rem;color:#888">Larg. (cm)</label><input id="az-larg" type="number" step="0.1" min="0" placeholder="cm" oninput="azCalcPesoCubico()"/></div>
+      <div><label style="font-size:.75rem;color:#888">Alt. (cm)</label><input id="az-alt" type="number" step="0.1" min="0" placeholder="cm" oninput="azCalcPesoCubico()"/></div>
+    </div>
+    <div class="info-box">
+      Peso cubico: <strong id="az-txtCubico">—</strong> &nbsp;|&nbsp; Peso considerado: <strong id="az-txtPesoFinal">—</strong>
+      <br/><small>Amazon soma 20g de embalagem e usa o maior entre real e cubico</small>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Tarifas</h2>
+    <div class="field"><label>Comissao Amazon (%)</label><div class="pi"><span>%</span><input id="az-comissao" type="number" step="0.1" min="0" value="13"/></div></div>
+    <div class="field"><label>Imposto (%)</label><div class="pi"><span>%</span><input id="az-imposto" type="number" step="0.1" min="0" value="5"/></div></div>
+    <div class="field">
+      <label>Regiao de origem (usada acima de R$ 200)</label>
+      <select id="az-regiao">
+        <option value="0">SP - Capital</option>
+        <option value="1">Outras capitais Sul e Sudeste</option>
+        <option value="2">Interior Sul e Sudeste</option>
+        <option value="3">Centro-Oeste, Norte e Nordeste</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Modo de Calculo</h2>
+    <div class="field">
+      <div class="tg">
+        <button id="az-bMargem" class="act-az" onclick="azSetModo(true)">Por Margem</button>
+        <button id="az-bPV" onclick="azSetModo(false)">Por PV</button>
+      </div>
+    </div>
+    <div id="az-campoMargem" class="field">
+      <label>Margem desejada (%)</label>
+      <div class="pi"><span>%</span><input id="az-margem" type="number" step="0.1" min="0" value="20"/></div>
+    </div>
+    <div id="az-campoPV" class="field" style="display:none">
+      <label>Preco de venda desejado (R$)</label>
+      <div class="pi"><span>R$</span><input id="az-pvEntrada" type="number" step="0.01" min="0"/></div>
+    </div>
+  </div>
+  <button class="btn-az" onclick="azCalcular()">Calcular</button>
+  <div id="az-resultado" style="display:none">
+    <div class="card">
+      <h2>Resultado Amazon DBA</h2>
+      <div class="rg">
+        <div class="ri hl-az"><div class="val" id="az-rPV">R$ 0,00</div><div class="lbl">Preco de Venda</div></div>
+        <div class="ri green"><div class="val" id="az-rMCpct">0,00%</div><div class="lbl">Margem</div></div>
+        <div class="ri green"><div class="val" id="az-rMCr">R$ 0,00</div><div class="lbl">Lucro (R$)</div></div>
+        <div class="ri"><div class="val" id="az-rFrete">R$ 0,00</div><div class="lbl">Frete DBA</div></div>
+      </div>
+      <div class="bk">
+        <h3>Composicao</h3>
+        <div class="br"><span>Custo produto</span><span class="neg" id="az-bdCusto">-</span></div>
+        <div class="br"><span>Embalagem</span><span class="neg" id="az-bdEmb">-</span></div>
+        <div class="br"><span>Frete DBA</span><span class="neg" id="az-bdFrete">-</span></div>
+        <div class="br"><span>Comissao Amazon</span><span class="neg" id="az-bdComissao">-</span></div>
+        <div class="br"><span>Imposto</span><span class="neg" id="az-bdImposto">-</span></div>
+        <div class="br"><span>Lucro liquido</span><span class="pos" id="az-bdLucro">-</span></div>
+      </div>
+      <div class="info-box" style="margin-top:12px">
+        Faixa DBA: <strong id="az-rFaixaPreco">—</strong><br/>
+        Peso usado: <strong id="az-rPesoUsado">—</strong>
+      </div>
+      <div id="az-alerta" class="alert alert-az" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ENVIO PROPRIO -->
+<div id="page-ep" class="page">
+  <div class="header-ep">
+    <h1>Amazon — Envio Proprio</h1>
+    <p>Frete cobrado do cliente vs custo real do envio</p>
+  </div>
+  <div class="card">
+    <h2>Dados do Produto</h2>
+    <div class="field"><label>Custo do produto (R$)</label><div class="pi"><span>R$</span><input id="ep-custo" type="number" step="0.01" min="0"/></div></div>
+    <div class="field"><label>Embalagem (R$)</label><div class="pi"><span>R$</span><input id="ep-embalagem" type="number" step="0.01" min="0" value="2"/></div></div>
+    <div class="field"><label>Peso do produto (kg)</label><input id="ep-peso" type="number" step="0.001" min="0" oninput="epAtualizarFrete()"/></div>
+  </div>
+  <div class="card">
+    <h2>Regiao de Destino</h2>
+    <div class="field">
+      <label>Selecione a regiao</label>
+      <select id="ep-regiao" onchange="epAtualizarFrete()">
+        <option value="0">Distrito Federal</option>
+        <option value="1">Goias Capital</option>
+        <option value="2">Goias Interior</option>
+        <option value="3">Mato Grosso do Sul Capital</option>
+        <option value="4">Mato Grosso do Sul Interior</option>
+        <option value="5">Mato Grosso Capital</option>
+        <option value="6">Mato Grosso Interior</option>
+        <option value="7">Acre Capital</option>
+        <option value="8">Acre Interior</option>
+        <option value="9">Amazonas Capital</option>
+        <option value="10">Amazonas Interior</option>
+        <option value="11">Amapa Capital</option>
+        <option value="12">Amapa Interior</option>
+        <option value="13">Para Capital</option>
+        <option value="14">Para Interior</option>
+        <option value="15">Rondonia Capital</option>
+        <option value="16">Rondonia Interior</option>
+        <option value="17">Roraima Capital</option>
+        <option value="18">Roraima Interior</option>
+        <option value="19">Tocantins Capital</option>
+        <option value="20">Tocantins Interior</option>
+        <option value="21">Alagoas Capital</option>
+        <option value="22">Alagoas Interior</option>
+        <option value="23">Bahia Capital</option>
+        <option value="24">Bahia Interior</option>
+        <option value="25">Ceara Capital</option>
+        <option value="26">Ceara Interior</option>
+        <option value="27">Maranhao Capital</option>
+        <option value="28">Maranhao Interior</option>
+        <option value="29">Paraiba Capital</option>
+        <option value="30">Paraiba Interior</option>
+        <option value="31">Pernambuco Capital</option>
+        <option value="32">Pernambuco Interior</option>
+        <option value="33">Piaui Capital</option>
+        <option value="34">Piaui Interior</option>
+        <option value="35">Rio Grande do Norte Capital</option>
+        <option value="36">Rio Grande do Norte Interior</option>
+        <option value="37">Sergipe Capital</option>
+        <option value="38">Sergipe Interior</option>
+        <option value="39">Parana Capital</option>
+        <option value="40">Parana Interior</option>
+        <option value="41">Rio Grande do Sul Capital</option>
+        <option value="42">Rio Grande do Sul Interior</option>
+        <option value="43">Santa Catarina Capital</option>
+        <option value="44">Santa Catarina Interior</option>
+        <option value="45">Espirito Santo Capital</option>
+        <option value="46">Espirito Santo Interior</option>
+        <option value="47">Minas Gerais Capital</option>
+        <option value="48">Minas Gerais Interior</option>
+        <option value="49">Rio de Janeiro Capital</option>
+        <option value="50">Rio de Janeiro Interior</option>
+        <option value="51">Sao Paulo Capital</option>
+        <option value="52">Sao Paulo Interior</option>
+        <option value="53">Expresso Sul/SE/RJ/SP</option>
+      </select>
+    </div>
+    <div class="info-box-ep">
+      Frete cobrado do cliente (tabela Amazon): <strong id="ep-txtFreteTabelado">Informe o peso</strong>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Frete Real Pago por Voce</h2>
+    <div class="field">
+      <label>Valor pago na transportadora / Correios (R$)</label>
+      <div class="pi"><span>R$</span><input id="ep-fretePago" type="number" step="0.01" min="0" value="0"/></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Tarifas Amazon</h2>
+    <div class="field"><label>Comissao Amazon (%)</label><div class="pi"><span>%</span><input id="ep-comissao" type="number" step="0.1" min="0" value="13"/></div></div>
+    <div class="field"><label>Imposto (%)</label><div class="pi"><span>%</span><input id="ep-imposto" type="number" step="0.1" min="0" value="5"/></div></div>
+  </div>
+  <div class="card">
+    <h2>Modo de Calculo</h2>
+    <div class="field">
+      <div class="tg">
+        <button id="ep-bMargem" class="act-ep" onclick="epSetModo(true)">Por Margem</button>
+        <button id="ep-bPV" onclick="epSetModo(false)">Por PV</button>
+      </div>
+    </div>
+    <div id="ep-campoMargem" class="field">
+      <label>Margem desejada (%)</label>
+      <div class="pi"><span>%</span><input id="ep-margem" type="number" step="0.1" min="0" value="20"/></div>
+    </div>
+    <div id="ep-campoPV" class="field" style="display:none">
+      <label>Preco de venda desejado (R$)</label>
+      <div class="pi"><span>R$</span><input id="ep-pvEntrada" type="number" step="0.01" min="0"/></div>
+    </div>
+  </div>
+  <button class="btn-ep" onclick="epCalcular()">Calcular</button>
+  <div id="ep-resultado" style="display:none">
+    <div class="card">
+      <h2>Resultado — Envio Proprio</h2>
+      <div class="rg">
+        <div class="ri hl-ep"><div class="val" id="ep-rPV">R$ 0,00</div><div class="lbl">Preco de Venda (produto)</div></div>
+        <div class="ri green"><div class="val" id="ep-rMCpct">0,00%</div><div class="lbl">Margem</div></div>
+        <div class="ri green"><div class="val" id="ep-rMCr">R$ 0,00</div><div class="lbl">Lucro (R$)</div></div>
+        <div class="ri blue"><div class="val" id="ep-rFreteCli">R$ 0,00</div><div class="lbl">Frete cobrado cliente</div></div>
+      </div>
+      <div class="frete-box">
+        <h3>Analise do Frete</h3>
+        <div class="frete-linha"><span>Frete cobrado do cliente</span><span id="ep-frAnalCli" style="color:#146eb4;font-weight:700">R$ 0,00</span></div>
+        <div class="frete-linha"><span>Frete pago por voce</span><span class="neg" id="ep-frAnalPago">- R$ 0,00</span></div>
+        <div class="frete-linha" style="border-top:1px solid #c8e6c9;margin-top:4px;padding-top:6px;font-weight:700">
+          <span>Saldo do frete</span><span id="ep-frSaldo">R$ 0,00</span>
+        </div>
+      </div>
+      <div class="bk" style="margin-top:10px">
+        <h3>Composicao</h3>
+        <div class="br"><span>Custo produto</span><span class="neg" id="ep-bdCusto">-</span></div>
+        <div class="br"><span>Embalagem</span><span class="neg" id="ep-bdEmb">-</span></div>
+        <div class="br"><span>Frete pago por voce</span><span class="neg" id="ep-bdFretePago">-</span></div>
+        <div class="br"><span>Frete cobrado do cliente</span><span class="pos" id="ep-bdFreteCli">+</span></div>
+        <div class="br"><span>Comissao Amazon (sobre PV)</span><span class="neg" id="ep-bdComissao">-</span></div>
+        <div class="br"><span>Imposto</span><span class="neg" id="ep-bdImposto">-</span></div>
+        <div class="br"><span>Lucro liquido</span><span class="pos" id="ep-bdLucro">-</span></div>
+      </div>
+      <div class="info-box-ep" style="margin-top:12px">
+        Regiao: <strong id="ep-rRegiao">—</strong><br/>
+        Frete tabelado Amazon: <strong id="ep-rFreteTabelado">—</strong>
+      </div>
+      <div id="ep-alerta" class="alert alert-ep" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ABAS
+function setAba(a){
+  ['ml','az','ep'].forEach(function(x){
+    document.getElementById('page-'+x).classList.toggle('active',x===a);
+  });
+  document.querySelector('.tab-ml').classList.toggle('active-ml',a==='ml');
+  document.querySelector('.tab-az').classList.toggle('active-az',a==='az');
+  document.querySelector('.tab-ep').classList.toggle('active-ep',a==='ep');
+}
+function brl(v){return 'R$ '+v.toFixed(2).replace('.',',');}
+function pct(v){return (v*100).toFixed(2).replace('.',',')+'%';}
+
+// ══════════════════════════════════════
+// MERCADO LIVRE
+// ══════════════════════════════════════
+const ML_FRETE=[
+[0,0.3,[5.65,6.55,7.75,12.35,14.35,16.45,18.45,20.95]],
+[0.3,0.5,[5.95,6.65,7.85,13.25,15.45,17.65,19.85,22.55]],
+[0.5,1,[6.05,6.75,7.95,13.85,16.15,18.45,20.75,23.65]],
+[1,1.5,[6.15,6.85,8.05,14.15,16.45,18.85,21.15,24.65]],
+[1.5,2,[6.25,6.95,8.15,14.45,16.85,19.25,21.65,24.65]],
+[2,3,[6.35,7.95,8.55,15.75,18.35,21.05,23.65,26.25]],
+[3,4,[6.45,8.15,8.95,17.05,19.85,22.65,25.55,28.35]],
+[4,5,[6.55,8.35,9.75,18.45,21.55,24.65,27.75,30.75]],
+[5,6,[6.65,8.55,9.95,25.45,28.55,32.65,35.75,39.75]],
+[6,7,[6.75,8.75,10.15,27.05,31.05,36.05,40.05,44.05]],
+[7,8,[6.85,8.95,10.35,28.85,33.65,38.45,43.25,48.05]],
+[8,9,[6.95,9.15,10.55,29.65,34.55,39.55,44.45,49.35]],
+[9,11,[7.05,9.55,10.95,41.25,48.05,54.95,61.75,68.65]],
+[11,13,[7.15,9.95,11.35,42.15,49.25,56.25,63.25,70.25]],
+[13,15,[7.25,10.15,11.55,45.05,52.45,59.95,67.45,74.95]],
+[15,17,[7.35,10.35,11.75,48.55,56.05,63.55,70.75,78.65]],
+[17,20,[7.45,10.55,11.95,54.75,63.85,72.95,82.05,91.15]],
+[20,25,[7.65,10.95,12.15,64.05,75.05,84.75,95.35,105.95]],
+[25,30,[7.75,11.15,12.35,65.95,75.45,85.55,96.25,106.95]],
+[30,40,[7.85,11.35,12.55,67.75,78.95,88.95,99.15,107.05]],
+[40,50,[7.95,11.55,12.75,70.25,81.05,92.05,102.55,110.75]],
+[50,60,[8.05,11.75,12.95,74.95,86.45,98.15,109.35,118.15]],
+[60,70,[8.15,11.95,13.15,80.25,92.95,105.05,117.15,126.55]],
+[70,80,[8.25,12.15,13.35,83.95,97.05,109.85,122.45,132.25]],
+[80,90,[8.35,12.35,13.55,93.25,107.45,122.05,136.05,146.95]],
+[90,100,[8.45,12.55,13.75,106.55,123.95,139.55,155.55,167.95]],
+[100,125,[8.55,12.75,13.95,119.25,138.05,156.05,173.95,187.95]],
+[125,150,[8.65,12.75,14.15,126.55,146.15,165.65,184.65,199.45]],
+[150,1000,[8.75,12.95,14.35,166.15,192.45,217.55,242.55,261.95]]
+];
+const ML_FAIXAS=[18.99,48.99,78.99,99.99,119.99,149.99,199.99,Infinity];
+function mlGetFrete(peso,pv){
+  var l=ML_FRETE.find(function(r){return peso>=r[0]&&peso<=r[1];})||ML_FRETE[ML_FRETE.length-1];
+  var idx=ML_FAIXAS.findIndex(function(f){return pv<=f;});
+  return l[2][idx===-1?7:idx];
+}
+var mlModoMargem=true,mlFreteGratis=false,mlTipoAnuncio='classico';
+function mlSetAnuncio(t){
+  mlTipoAnuncio=t;
+  document.getElementById('ml-bClassico').className=t==='classico'?'act-ml':'';
+  document.getElementById('ml-bPremium').className=t==='premium'?'act-ml-blue':'';
+  mlAtualizarTarifaInfo();
+}
+function mlAtualizarTarifaInfo(){
+  var tc=parseFloat(document.getElementById('ml-tarifaClassico').value)||11.5;
+  var tp=parseFloat(document.getElementById('ml-tarifaPremium').value)||15;
+  var v=mlTipoAnuncio==='classico'?tc:tp;
+  var n=mlTipoAnuncio==='classico'?'Classico':'Premium';
+  document.getElementById('ml-tarifaInfo').innerHTML='Tarifa '+n+': <strong>'+v.toFixed(1).replace('.',',')+'%</strong>';
+}
+function mlSetModo(m){
+  mlModoMargem=m;
+  document.getElementById('ml-bMargem').classList.toggle('act-ml',m);
+  document.getElementById('ml-bPV').classList.toggle('act-ml',!m);
+  document.getElementById('ml-campoMargem').style.display=m?'':'none';
+  document.getElementById('ml-campoPV').style.display=m?'none':'';
+}
+function mlSetFrete(v){
+  mlFreteGratis=v;
+  document.getElementById('ml-bSF').classList.toggle('act-ml',!v);
+  document.getElementById('ml-bCF').classList.toggle('act-ml',v);
+}
+function mlCalcular(){
+  var custo=parseFloat(document.getElementById('ml-custo').value)||0;
+  var emb=parseFloat(document.getElementById('ml-embalagem').value)||0;
+  var peso=parseFloat(document.getElementById('ml-peso').value)||0;
+  var imp=(parseFloat(document.getElementById('ml-imposto').value)||5)/100;
+  var tc=(parseFloat(document.getElementById('ml-tarifaClassico').value)||11.5)/100;
+  var tp=(parseFloat(document.getElementById('ml-tarifaPremium').value)||15)/100;
+  var tarifa=mlTipoAnuncio==='classico'?tc:tp;
+  var pv,f,mc,mcP;
+  if(mlModoMargem){
+    var m=(parseFloat(document.getElementById('ml-margem').value)||20)/100;
+    var div=1-m-tarifa-imp;
+    if(div<=0){alert('Margem + taxas muito altas.');return;}
+    if(!mlFreteGratis){
+      pv=(custo+emb)/div;
+      f=mlGetFrete(peso,pv);
+      mc=pv-custo-emb-pv*tarifa-pv*imp;
+    }else{
+      pv=(custo+emb)/div;
+      for(var i=0;i<10;i++){f=mlGetFrete(peso,pv);pv=(custo+emb+f)/div;}
+      mc=pv-custo-emb-f-pv*tarifa-pv*imp;
+    }
+  }else{
+    pv=parseFloat(document.getElementById('ml-pvEntrada').value)||0;
+    f=mlGetFrete(peso,pv);
+    mc=mlFreteGratis?pv-custo-emb-f-pv*tarifa-pv*imp:pv-custo-emb-pv*tarifa-pv*imp;
+  }
+  mcP=pv>0?mc/pv:0;
+  var tRS=pv*tarifa,iRS=pv*imp;
+  var nome=mlTipoAnuncio==='classico'?'Classico':'Premium';
+  document.getElementById('ml-badgeAnuncio').textContent=nome;
+  document.getElementById('ml-badgeAnuncio').className=mlTipoAnuncio==='classico'?'badge badge-classic':'badge badge-premium';
+  document.getElementById('ml-labelTarifa').textContent='Tarifa ML ('+nome+')';
+  document.getElementById('ml-resultado').style.display='block';
+  document.getElementById('ml-rPV').textContent=brl(pv);
+  document.getElementById('ml-rMCpct').textContent=pct(mcP);
+  document.getElementById('ml-rMCr').textContent=brl(mc);
+  document.getElementById('ml-rFrete').textContent=brl(f)+(mlFreteGratis?' (gratis)':'');
+  document.getElementById('ml-bdCusto').textContent='- '+brl(custo);
+  document.getElementById('ml-bdEmb').textContent='- '+brl(emb);
+  document.getElementById('ml-bdFrete').textContent=mlFreteGratis?'- '+brl(f):'Pago pelo comprador';
+  document.getElementById('ml-bdTarifa').textContent='- '+brl(tRS);
+  document.getElementById('ml-bdImposto').textContent='- '+brl(iRS);
+  document.getElementById('ml-bdLucro').textContent=brl(mc);
+  var al=document.getElementById('ml-alerta');
+  var ris=document.querySelectorAll('#ml-resultado .ri');
+  if(mcP<0){al.style.display='';al.textContent='Margem negativa!';ris[1].className='ri red';ris[2].className='ri red';}
+  else if(mcP<0.1){al.style.display='';al.textContent='Margem abaixo de 10%.';ris[1].className='ri green';ris[2].className='ri green';}
+  else{al.style.display='none';ris[1].className='ri green';ris[2].className='ri green';}
+  document.getElementById('ml-resultado').scrollIntoView({behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+// AMAZON DBA
+// ══════════════════════════════════════
+function azFreteBaixo(pv){
+  if(pv<=30)return 4.50;
+  if(pv<=49.99)return 6.50;
+  if(pv<=78.99)return 6.75;
+  return null;
+}
+var AZ79=[
+[0,0.25,[11.95,13.95,15.95,17.95]],
+[0.25,0.5,[12.85,15.00,17.15,19.30]],
+[0.5,1,[13.45,15.70,17.95,20.20]],
+[1,2,[14.00,16.35,18.75,21.10]],
+[2,3,[14.95,17.45,19.95,22.40]],
+[3,4,[16.15,18.85,21.55,24.20]],
+[4,5,[17.00,19.90,22.75,25.60]],
+[5,6,[25.00,30.00,34.00,38.00]],
+[6,7,[26.00,31.00,35.00,39.00]],
+[7,8,[27.00,32.00,36.00,40.00]],
+[8,9,[28.00,33.00,37.00,41.00]],
+[9,10,[39.50,46.00,52.75,59.00]]
+];
+var AZ79K=[3.05,3.05,3.05,3.50];
+function azCol79(pv){return pv<=99.99?0:pv<=119.99?1:pv<=149.99?2:3;}
+function azF79(peso,pv){
+  var col=azCol79(pv);
+  var l=AZ79.find(function(r){return peso>=r[0]&&peso<r[1];});
+  if(l)return l[2][col];
+  return AZ79[AZ79.length-1][2][col]+Math.ceil(peso-10)*AZ79K[col];
+}
+var AZ200=[
+[0,0.25,[19.95,19.95,20.45,20.45]],
+[0.25,0.5,[20.45,20.45,20.95,20.95]],
+[0.5,1,[21.45,21.45,21.95,21.95]],
+[1,2,[22.95,22.95,23.45,23.45]],
+[2,3,[23.95,23.95,24.45,24.45]],
+[3,4,[25.95,25.95,25.95,25.95]],
+[4,5,[27.95,27.95,27.95,27.95]],
+[5,6,[36.95,36.95,36.95,36.95]],
+[6,7,[39.45,39.45,39.45,39.45]],
+[7,8,[40.45,40.45,40.45,40.45]],
+[8,9,[45.45,46.95,46.95,46.95]],
+[9,10,[59.95,61.45,65.95,65.95]]
+];
+function azF200(peso,reg){
+  var l=AZ200.find(function(r){return peso>=r[0]&&peso<r[1];});
+  if(l)return l[2][reg];
+  return AZ200[AZ200.length-1][2][reg]+Math.ceil(peso-10)*4.00;
+}
+function azPF(){
+  var pr=parseFloat(document.getElementById('az-peso').value)||0;
+  var c=parseFloat(document.getElementById('az-comp').value)||0;
+  var la=parseFloat(document.getElementById('az-larg').value)||0;
+  var a=parseFloat(document.getElementById('az-alt').value)||0;
+  var EMB=0.02;
+  var pc=c>0&&la>0&&a>0?(c*la*a)/6000:0;
+  return Math.max(pr+EMB,pc+EMB);
+}
+function azCalcPesoCubico(){
+  var pr=parseFloat(document.getElementById('az-peso').value)||0;
+  var c=parseFloat(document.getElementById('az-comp').value)||0;
+  var la=parseFloat(document.getElementById('az-larg').value)||0;
+  var a=parseFloat(document.getElementById('az-alt').value)||0;
+  var pc=c>0&&la>0&&a>0?(c*la*a)/6000:0;
+  document.getElementById('az-txtCubico').textContent=c>0&&la>0&&a>0?pc.toFixed(3)+' kg':'—';
+  document.getElementById('az-txtPesoFinal').textContent=Math.max(pr+0.02,pc+0.02).toFixed(3)+' kg';
+}
+function azGetFrete(pv,pf,reg){
+  if(pv<=78.99)return{valor:azFreteBaixo(pv),faixa:'Ate R$ 78,99 (fixa)'};
+  if(pv<=199.99){
+    var fs=['R$79-99,99','R$100-119,99','R$120-149,99','R$150-199,99'];
+    return{valor:azF79(pf,pv),faixa:fs[azCol79(pv)]};
+  }
+  var rs=['SP Capital','Outras caps Sul/SE','Interior Sul/SE','CO/N/NE'];
+  return{valor:azF200(pf,reg),faixa:'>= R$200 | '+rs[reg]};
+}
+var azModoMargem=true;
+function azSetModo(m){
+  azModoMargem=m;
+  document.getElementById('az-bMargem').classList.toggle('act-az',m);
+  document.getElementById('az-bPV').classList.toggle('act-az',!m);
+  document.getElementById('az-campoMargem').style.display=m?'':'none';
+  document.getElementById('az-campoPV').style.display=m?'none':'';
+}
+function azCalcular(){
+  var custo=parseFloat(document.getElementById('az-custo').value)||0;
+  var emb=parseFloat(document.getElementById('az-embalagem').value)||0;
+  var com=(parseFloat(document.getElementById('az-comissao').value)||13)/100;
+  var imp=(parseFloat(document.getElementById('az-imposto').value)||5)/100;
+  var reg=parseInt(document.getElementById('az-regiao').value);
+  var pf=azPF();
+  var pv,fObj,mc,mcP;
+  if(azModoMargem){
+    var m=(parseFloat(document.getElementById('az-margem').value)||20)/100;
+    var div=1-m-com-imp;
+    if(div<=0){alert('Margem + taxas muito altas.');return;}
+    pv=(custo+emb)/div;
+    for(var i=0;i<15;i++){fObj=azGetFrete(pv,pf,reg);pv=(custo+emb+fObj.valor)/div;}
+    fObj=azGetFrete(pv,pf,reg);
+    mc=pv-custo-emb-fObj.valor-pv*com-pv*imp;
+  }else{
+    pv=parseFloat(document.getElementById('az-pvEntrada').value)||0;
+    fObj=azGetFrete(pv,pf,reg);
+    mc=pv-custo-emb-fObj.valor-pv*com-pv*imp;
+  }
+  mcP=pv>0?mc/pv:0;
+  document.getElementById('az-resultado').style.display='block';
+  document.getElementById('az-rPV').textContent=brl(pv);
+  document.getElementById('az-rMCpct').textContent=pct(mcP);
+  document.getElementById('az-rMCr').textContent=brl(mc);
+  document.getElementById('az-rFrete').textContent=brl(fObj.valor);
+  document.getElementById('az-bdCusto').textContent='- '+brl(custo);
+  document.getElementById('az-bdEmb').textContent='- '+brl(emb);
+  document.getElementById('az-bdFrete').textContent='- '+brl(fObj.valor);
+  document.getElementById('az-bdComissao').textContent='- '+brl(pv*com);
+  document.getElementById('az-bdImposto').textContent='- '+brl(pv*imp);
+  document.getElementById('az-bdLucro').textContent=brl(mc);
+  document.getElementById('az-rFaixaPreco').textContent=fObj.faixa;
+  document.getElementById('az-rPesoUsado').textContent=pf.toFixed(3)+' kg';
+  var al=document.getElementById('az-alerta');
+  var ris=document.querySelectorAll('#az-resultado .ri');
+  if(mcP<0){al.style.display='';al.textContent='Margem negativa!';ris[1].className='ri red';ris[2].className='ri red';}
+  else if(mcP<0.1){al.style.display='';al.textContent='Margem abaixo de 10%.';ris[1].className='ri green';ris[2].className='ri green';}
+  else{al.style.display='none';ris[1].className='ri green';ris[2].className='ri green';}
+  document.getElementById('az-resultado').scrollIntoView({behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+// ENVIO PROPRIO
+// ══════════════════════════════════════
+var EP_REGIOES=[
+  {nome:'Distrito Federal',base:17,kg:2},
+  {nome:'Goias Capital',base:17,kg:2},
+  {nome:'Goias Interior',base:19,kg:3},
+  {nome:'Mato Grosso do Sul Capital',base:17,kg:2},
+  {nome:'Mato Grosso do Sul Interior',base:19,kg:3},
+  {nome:'Mato Grosso Capital',base:19,kg:2},
+  {nome:'Mato Grosso Interior',base:21,kg:3},
+  {nome:'Acre Capital',base:31,kg:4},
+  {nome:'Acre Interior',base:39,kg:5},
+  {nome:'Amazonas Capital',base:28,kg:3},
+  {nome:'Amazonas Interior',base:38,kg:4},
+  {nome:'Amapa Capital',base:26,kg:3},
+  {nome:'Amapa Interior',base:38,kg:4},
+  {nome:'Para Capital',base:22,kg:3},
+  {nome:'Para Interior',base:31,kg:3},
+  {nome:'Rondonia Capital',base:29,kg:3},
+  {nome:'Rondonia Interior',base:29,kg:4},
+  {nome:'Roraima Capital',base:31,kg:4},
+  {nome:'Roraima Interior',base:41,kg:5},
+  {nome:'Tocantins Capital',base:27,kg:3},
+  {nome:'Tocantins Interior',base:32,kg:3},
+  {nome:'Alagoas Capital',base:27,kg:3},
+  {nome:'Alagoas Interior',base:40,kg:4},
+  {nome:'Bahia Capital',base:20,kg:2},
+  {nome:'Bahia Interior',base:22,kg:3},
+  {nome:'Ceara Capital',base:22,kg:3},
+  {nome:'Ceara Interior',base:32,kg:3},
+  {nome:'Maranhao Capital',base:26,kg:3},
+  {nome:'Maranhao Interior',base:39,kg:4},
+  {nome:'Paraiba Capital',base:26,kg:3},
+  {nome:'Paraiba Interior',base:40,kg:4},
+  {nome:'Pernambuco Capital',base:22,kg:3},
+  {nome:'Pernambuco Interior',base:31,kg:3},
+  {nome:'Piaui Capital',base:27,kg:3},
+  {nome:'Piaui Interior',base:40,kg:4},
+  {nome:'RN Capital',base:27,kg:3},
+  {nome:'RN Interior',base:40,kg:4},
+  {nome:'Sergipe Capital',base:27,kg:3},
+  {nome:'Sergipe Interior',base:40,kg:4},
+  {nome:'Parana Capital',base:16,kg:2},
+  {nome:'Parana Interior',base:17,kg:3},
+  {nome:'RS Capital',base:19,kg:2},
+  {nome:'RS Interior',base:19,kg:3},
+  {nome:'Santa Catarina Capital',base:18,kg:2},
+  {nome:'Santa Catarina Interior',base:19,kg:3},
+  {nome:'Espirito Santo Capital',base:18,kg:2},
+  {nome:'Espirito Santo Interior',base:19,kg:3},
+  {nome:'Minas Gerais Capital',base:18,kg:2},
+  {nome:'Minas Gerais Interior',base:19,kg:3},
+  {nome:'Rio de Janeiro Capital',base:19,kg:2},
+  {nome:'Rio de Janeiro Interior',base:20,kg:3},
+  {nome:'Sao Paulo Capital',base:17,kg:1},
+  {nome:'Sao Paulo Interior',base:19,kg:1},
+  {nome:'Expresso Sul/SE/RJ/SP',base:16,kg:2}
+];
+function epGetFreteTabelado(idx,peso){
+  var r=EP_REGIOES[idx];
+  return r.base+r.kg*peso;
+}
+function epAtualizarFrete(){
+  var idx=parseInt(document.getElementById('ep-regiao').value);
+  var peso=parseFloat(document.getElementById('ep-peso').value)||0;
+  var frete=epGetFreteTabelado(idx,peso);
+  document.getElementById('ep-txtFreteTabelado').textContent=brl(frete)+' ('+EP_REGIOES[idx].nome+')';
+}
+var epModoMargem=true;
+function epSetModo(m){
+  epModoMargem=m;
+  document.getElementById('ep-bMargem').classList.toggle('act-ep',m);
+  document.getElementById('ep-bPV').classList.toggle('act-ep',!m);
+  document.getElementById('ep-campoMargem').style.display=m?'':'none';
+  document.getElementById('ep-campoPV').style.display=m?'none':'';
+}
+ function epCalcular(){
+  var custo=parseFloat(document.getElementById('ep-custo').value)||0;
+  var emb=parseFloat(document.getElementById('ep-embalagem').value)||0;
+  var peso=parseFloat(document.getElementById('ep-peso').value)||0;
+  var com=(parseFloat(document.getElementById('ep-comissao').value)||13)/100;
+  var imp=(parseFloat(document.getElementById('ep-imposto').value)||5)/100;
+  var fretePago=parseFloat(document.getElementById('ep-fretePago').value)||0;
+
+  var regIdx=parseInt(document.getElementById('ep-regiao').value);
+  var reg=EP_REGIOES[regIdx];
+  var freteCli=epGetFreteTabelado(regIdx,peso);
+
+  var pv,mc,mcP;
+  if(epModoMargem){
+    var m=(parseFloat(document.getElementById('ep-margem').value)||20)/100;
+    var div=1-m-com-imp;
+    if(div<=0){alert('Margem + comissao + imposto muito altos.');return;}
+    // Receita total = PV + freteCli
+    // Lucro = PV + freteCli - custo - emb - fretePago - PV*com - PV*imp
+    // => Lucro = PV*(1-com-imp) + freteCli - custo - emb - fretePago
+    // Queremos Lucro = m*(PV + freteCli)
+    // => PV*(1-com-imp-m) = m*freteCli + custo + emb + fretePago - freteCli
+    // => PV = (m*freteCli + custo + emb + fretePago - freteCli) / (1-com-imp-m)
+    pv = (m*freteCli + custo + emb + fretePago - freteCli) / div;
+  }else{
+    pv=parseFloat(document.getElementById('ep-pvEntrada').value)||0;
+  }
+
+  var receita = pv + freteCli;
+  mc = receita - custo - emb - fretePago - pv*com - pv*imp;
+  mcP = receita>0 ? mc/receita : 0;
+
+  document.getElementById('ep-resultado').style.display='block';
+  document.getElementById('ep-rPV').textContent=brl(pv);
+  document.getElementById('ep-rMCpct').textContent=pct(mcP);
+  document.getElementById('ep-rMCr').textContent=brl(mc);
+  document.getElementById('ep-rFreteCli').textContent=brl(freteCli);
+
+  document.getElementById('ep-frAnalCli').textContent=brl(freteCli);
+  document.getElementById('ep-frAnalPago').textContent='- '+brl(fretePago);
+  var saldo = freteCli - fretePago;
+  document.getElementById('ep-frSaldo').textContent=brl(saldo);
+  document.getElementById('ep-frSaldo').className = saldo>=0 ? 'saldo-pos' : 'saldo-neg';
+
+  document.getElementById('ep-bdCusto').textContent='- '+brl(custo);
+  document.getElementById('ep-bdEmb').textContent='- '+brl(emb);
+  document.getElementById('ep-bdFretePago').textContent='- '+brl(fretePago);
+  document.getElementById('ep-bdFreteCli').textContent='+ '+brl(freteCli);
+  document.getElementById('ep-bdComissao').textContent='- '+brl(pv*com);
+  document.getElementById('ep-bdImposto').textContent='- '+brl(pv*imp);
+  document.getElementById('ep-bdLucro').textContent=brl(mc);
+
+  document.getElementById('ep-rRegiao').textContent=reg.nome;
+  document.getElementById('ep-rFreteTabelado').textContent=brl(freteCli);
+
+  var al=document.getElementById('ep-alerta');
+  var ris=document.querySelectorAll('#ep-resultado .ri');
+  if(mcP<0){al.style.display='';al.textContent='Margem negativa!';ris[1].className='ri red';ris[2].className='ri red';}
+  else if(mcP<0.1){al.style.display='';al.textContent='Margem abaixo de 10%.';ris[1].className='ri green';ris[2].className='ri green';}
+  else{al.style.display='none';ris[1].className='ri green';ris[2].className='ri green';}
+  document.getElementById('ep-resultado').scrollIntoView({behavior:'smooth'});
+}
+
+// inicializa texto de frete no envio proprio
+epAtualizarFrete();
+mlAtualizarTarifaInfo();
+</script>
+</body>
+</html>
